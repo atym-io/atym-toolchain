@@ -2,7 +2,7 @@
 
 This repository contains a collection of sample applications and containers for ATYM/OCRE. It includes both board-specific demos and generic examples to help engineers develop, test, and share reusable code.
 
-This is an internal repository intended for engineering use, onboarding, and demo development. For polished, public-facing demos, please refer to the main `getting-started` repository.
+This is an internal repository intended for engineering use, onboarding, and demo development. For polished, public-facing demos, please refer to the main [`getting-started`](https://github.com/atym-io/getting-started) repository.
 
 ## Project Structure
 
