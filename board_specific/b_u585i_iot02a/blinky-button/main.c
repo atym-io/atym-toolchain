@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include "ocre_api.h"
+#include "../../../atym-sdk/ocre_api.h"
 
 // Red LED: PH6
 #define PORT_LED_RED        7

@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include "ocre_api.h"
+#include "../../atym-sdk/ocre_api.h"
 
 #define TIMER_ID        1
 #define TIMER_INTERVAL  500
