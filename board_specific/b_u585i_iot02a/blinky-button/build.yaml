@@ -11,6 +11,6 @@ config:
   environment:
     - INTERVAL=500
   permissions:
-    - console
-    - GPIO
-    - LED
+    - networking
+    - ocre_gpio
+    - ocre_timers
