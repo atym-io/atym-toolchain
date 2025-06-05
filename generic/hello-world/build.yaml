@@ -11,4 +11,3 @@ config:
   environment:
     - Message
   permissions:
-    - networking
