@@ -5,11 +5,10 @@ set(CMAKE_TOOLCHAIN_FILE /opt/wasi-sdk/share/cmake/wasi-sdk-p1.cmake)
 
 set(CMAKE_BUILD_TYPE Release)
 
-set(APPNAME echo)
+set(APPNAME echo-server)
 project(${APPNAME})
 
 add_compile_options(
-#    --target=wasm32-wasm-unknown # Target WebAssembly
     -O0 -Wno-unknown-attributes
 )
 
@@ -19,5 +18,4 @@ add_link_options(
     -Wl,--strip-all # Strip all symbol/debug information from the binary
 )
 
-add_executable(${APPNAME}.wasm server.c wasi_socket_ext.c)
-
+add_executable(${APPNAME}.wasm src/main.c src/wasi_socket_ext.c)

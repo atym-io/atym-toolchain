@@ -3,13 +3,11 @@
 
 version: '1'
 
-name: echo
+name: echo-server
 binaries:
-  - path: build/echo.wasm
+  - path: build/echo-server.wasm
 
 config:
   environment:
-    - ENABLED=true
   permissions:
-    - network
-  
+    - networking
