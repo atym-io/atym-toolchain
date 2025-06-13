@@ -1,3 +1,6 @@
+/*
+ * Copyright (C) 2025 Atym Incorporated. All rights reserved.
+ */
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
