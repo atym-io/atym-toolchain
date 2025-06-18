@@ -21,3 +21,4 @@ add_compile_options(
 
 # Create the executable target
 add_executable(${APPNAME}.wasm main.c)
+target_link_libraries(${APPNAME}.wasm PRIVATE ocre_api)

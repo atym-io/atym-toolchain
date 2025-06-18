@@ -1,17 +1,20 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "../../atym-sdk/ocre_api.h"
+#include "ocre_api.h"
 
 #define LED0_PORT 7
 #define LED0 7
 #define BUTTON_PORT 2
 #define BUTTON_0 13
 
-static void blink_led(void)
+// Timer callback function - can be any function you want
+static void my_timer_function(void)
 {
+    printf("Timer triggered - blinking LED!\n");
     static bool led_state = false;
     static int blink_count = 0;
+
     // Active-low: RESET (low) = ON, SET (high) = OFF
     int ret = led_state ? ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_RESET) // ON
                         : ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_SET);  // OFF
@@ -26,77 +29,32 @@ static void blink_led(void)
     led_state = !led_state;
 }
 
-__attribute__((export_name("timer_callback"))) void timer_callback(int timer_id)
+// GPIO callback function - can be any function you want
+static void my_button_function(void)
 {
-    if (timer_id != 1)
+    printf("Button pressed - blinking LED!\n");
+    static bool led_state = false;
+    static int blink_count = 0;
+
+    // Active-low: RESET (low) = ON, SET (high) = OFF
+    int ret = led_state ? ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_RESET) // ON
+                        : ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_SET);  // OFF
+    if (ret != 0)
     {
-        printf("Invalid timer ID: %d\n", timer_id);
-        return;
+        printf("Failed to set LED: %d\n", ret);
     }
-    printf("Timer callback: ID=%d\n", timer_id);
-    blink_led();
+    else
+    {
+        printf("LED state set to %s (logical %d, count %d)\n", led_state ? "ON" : "OFF", led_state, ++blink_count);
+    }
+    led_state = !led_state;
 }
 
-__attribute__((export_name("gpio_callback"))) void gpio_callback(int pin, int state)
+// Example of another function you could use
+static void my_other_function(void)
 {
-    printf("GPIO callback: pin=%d, state=%d\n", pin, state);
-    blink_led();
-}
-
-__attribute__((export_name("poll_events"))) void poll_events(void)
-{
-    event_data_t event_data;
-    int event_count = 0;
-    const int max_events_per_loop = 5;
-
-    // Get the base address of event_data as an offset in WASM memory
-    uint32_t base_offset = (uint32_t)&event_data;
-    uint32_t type_offset = base_offset + offsetof(event_data_t, type);
-    uint32_t id_offset = base_offset + offsetof(event_data_t, id);
-    uint32_t port_offset = base_offset + offsetof(event_data_t, port);
-    uint32_t state_offset = base_offset + offsetof(event_data_t, state);
-
-    while (event_count < max_events_per_loop)
-    {
-        int ret = ocre_get_event(type_offset, id_offset, port_offset, state_offset);
-        if (ret != 0)
-        {
-            break;
-        }
-
-        // Access event data
-        int32_t type = event_data.type;
-        int32_t id = event_data.id;
-        int32_t port = event_data.port;
-        int32_t state = event_data.state;
-
-        if (type < 0 || type >= OCRE_RESOURCE_TYPE_COUNT || id < 0 || port < 0 ||
-            (type == OCRE_RESOURCE_TYPE_GPIO && state != OCRE_GPIO_PIN_SET && state != OCRE_GPIO_PIN_RESET))
-        {
-            printf("Invalid event: type=%d, id=%d, port=%d, state=%d\n", type, id, port, state);
-            continue;
-        }
-
-        printf("Retrieved event: type=%d, id=%d, port=%d, state=%d\n", type, id, port, state);
-        if (type == OCRE_RESOURCE_TYPE_TIMER && port == 0)
-        {
-            timer_callback(id);
-        }
-        else if (type == OCRE_RESOURCE_TYPE_GPIO && port == BUTTON_PORT)
-        {
-            gpio_callback(id, state);
-        }
-        else
-        {
-            printf("Unknown event: type=%d, id=%d, port=%d, state=%d\n", type, id, port, state);
-        }
-        event_count++;
-    }
-
-    if (event_count == 0)
-    {
-        ocre_sleep(10);
-    }
+    printf("Alternative function called!\n");
+    // Do something else here
 }
 
 int main(void)
@@ -111,7 +69,7 @@ int main(void)
     ██████  ██      ██ ██ ██  ██ █████     ████   \n\
     ██   ██ ██      ██ ██  ██ ██ ██  ██     ██    \n\
     ██████  ███████ ██ ██   ████ ██   ██    ██    \n");
-    printf("Blinky Test\n");
+    printf("Blinky Test with Generic Callbacks\n");
 
     // Initialize GPIO
     if (ocre_gpio_init() != 0)
@@ -149,7 +107,7 @@ int main(void)
         printf("Failed to set LED OFF\n");
     ocre_sleep(1000);
 
-    // Register dispatchers
+    // Register dispatchers (still needed for WASM exports)
     if (ocre_register_dispatcher(OCRE_RESOURCE_TYPE_TIMER, "timer_callback") != 0)
     {
         printf("Failed to register timer dispatcher\n");
@@ -160,6 +118,28 @@ int main(void)
         printf("Failed to register GPIO dispatcher\n");
         return -1;
     }
+
+    // =============================================================================
+    // REGISTER YOUR CUSTOM CALLBACK FUNCTIONS
+    // =============================================================================
+
+    // Register timer callback - you can use any function here!
+    if (ocre_register_timer_callback(timer_id, my_timer_function) != 0)
+    {
+        printf("Failed to register timer callback function\n");
+        return -1;
+    }
+
+    // Register GPIO callback - you can use any function here!
+    if (ocre_register_gpio_callback(BUTTON_0, BUTTON_PORT, my_button_function) != 0)
+    {
+        printf("Failed to register GPIO callback function\n");
+        return -1;
+    }
+
+    // You could also register different functions:
+    // ocre_register_timer_callback(timer_id, my_other_function);
+    // ocre_register_gpio_callback(BUTTON_0, my_other_function);
 
     // Create and start timer
     if (ocre_timer_create(timer_id) != 0)
@@ -175,9 +155,10 @@ int main(void)
         return -1;
     }
 
+    printf("Starting event loop...\n");
     while (1)
     {
-        poll_events();
+        ocre_poll_events(); // Now uses the generic system internally
         ocre_sleep(10);
     }
 
