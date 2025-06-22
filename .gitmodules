@@ -1,7 +1,6 @@
 [submodule "atym-sdk"]
 	path = atym-sdk
 	url = git@github.com:atym-io/atym-sdk.git
-	branch = container-supervisor-optimization
 [submodule "external/wasm-micro-runtime"]
 	path = external/wasm-micro-runtime
 	url = https://github.com/bytecodealliance/wasm-micro-runtime.git

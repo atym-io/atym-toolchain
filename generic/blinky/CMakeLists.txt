@@ -12,20 +12,14 @@ add_compile_options(
     -Wno-unknown-attributes
 )
 
-# Specify paths to ocre_api
-find_library(OCRE_API_LIB ocre_api
-    PATHS /workspaces/getting-started-internal/atym-sdk/build
-    NO_DEFAULT_PATH
-)
-find_path(OCRE_API_INCLUDE ocre_api.h
-    PATHS /workspaces/getting-started-internal/atym-sdk
-    NO_DEFAULT_PATH
-)
-
-if (NOT OCRE_API_LIB OR NOT OCRE_API_INCLUDE)
-    message(FATAL_ERROR "ocre_api library or headers not found. Please ensure ocre_api is built.")
+# Add the atym-sdk as a subdirectory and build it
+set(ATYM_SDK_PATH "../atym-sdk")
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${ATYM_SDK_PATH}/CMakeLists.txt")
+    message(FATAL_ERROR "atym-sdk not found at ${ATYM_SDK_PATH}. Please ensure the atym-sdk directory exists and contains CMakeLists.txt")
 endif()
 
+add_subdirectory(${ATYM_SDK_PATH} atym-sdk-build)
+
 add_executable(${APPNAME}.wasm main.c)
-target_include_directories(${APPNAME}.wasm PRIVATE ${OCRE_API_INCLUDE})
-target_link_libraries(${APPNAME}.wasm PRIVATE ${OCRE_API_LIB})
+target_include_directories(${APPNAME}.wasm PRIVATE ocre_api)
+target_link_libraries(${APPNAME}.wasm PRIVATE ocre_api)
