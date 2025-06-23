@@ -1,28 +1,25 @@
 cmake_minimum_required(VERSION 3.20.0)
+set(CMAKE_TOOLCHAIN_FILE /opt/wasi-sdk/share/cmake/wasi-sdk.cmake)
+set(APPNAME blinky)
+project(${APPNAME} LANGUAGES C)
 
-# Set the WASI SDK toolchain cmake with pthread support
-set(CMAKE_TOOLCHAIN_FILE /opt/wasi-sdk/share/cmake/wasi-sdk-pthread.cmake)
-
-# Verify toolchain file exists
-if(NOT EXISTS ${CMAKE_TOOLCHAIN_FILE})
-    message(FATAL_ERROR "WASI toolchain cmake not found at ${CMAKE_TOOLCHAIN_FILE}.")
-endif()
-
-# Set the project name (needs to come after the toolchain file) 
-set(APPNAME "blinky-button")
-project(${APPNAME})
-
-# Set the linker flags 
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--strip-all -Wl,--allow-undefined")
-
-# Set compilation flags
 add_compile_options(
-    -O0 -Wno-unknown-attributes
     -O3
     -Wall
     -Wextra
     -Wno-unused-parameter
+    -Wno-unknown-attributes
 )
 
-# Create the executable target
+# Add the atym-sdk as a subdirectory and build it
+set(ATYM_SDK_PATH "../../../atym-sdk")
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${ATYM_SDK_PATH}/CMakeLists.txt")
+    message(FATAL_ERROR "atym-sdk not found at ${ATYM_SDK_PATH}. Please ensure the atym-sdk directory exists and contains CMakeLists.txt")
+endif()
+
+add_subdirectory(${ATYM_SDK_PATH} atym-sdk-build)
+
 add_executable(${APPNAME}.wasm main.c)
+target_include_directories(${APPNAME}.wasm PRIVATE ocre_api)
+target_link_libraries(${APPNAME}.wasm PRIVATE ocre_api)

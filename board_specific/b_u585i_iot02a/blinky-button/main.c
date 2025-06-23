@@ -1,111 +1,152 @@
-// Blinky-button demo for the B_u585iot2a board
-
+/*
+ * Copyright (C) 2025 Atym Incorporated. All rights reserved.
+ */
 #include <stdio.h>
-#include <stdbool.h>
-#include "../../../atym-sdk/ocre_api.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <ocre_api.h>
 
-// Red LED: PH6
-#define PORT_LED_RED        7
-#define PIN_LED_RED         6
+#define LED0_PORT 7
+#define LED0 7
+#define BUTTON_PORT 2
+#define BUTTON_0 13
 
-// Green LED: PH7
-#define PORT_LED_GREEN      7
-#define PIN_LED_GREEN       7
-
-// Button: PC13
-#define PORT_BTN            2 
-#define PIN_BTN             13
-#define BTN_PIN_ID          45 
-
-// Timers
-#define TIMER_ID_RED        1
-#define TIMER_ID_GREEN      2
-#define INTERVAL_RED        250
-#define INTERVAL_GREEN      250
-
-
-volatile bool button_event = false;
-
-void set_red_led(bool on) {
-    ocre_gpio_pin_set(PORT_LED_RED, PIN_LED_RED, on ? OCRE_GPIO_PIN_SET : OCRE_GPIO_PIN_RESET);
-}
-
-void set_green_led(bool on) {
-    ocre_gpio_pin_set(PORT_LED_GREEN, PIN_LED_GREEN, on ? OCRE_GPIO_PIN_SET : OCRE_GPIO_PIN_RESET);
-}
-
-OCRE_EXPORT("timer_callback")
-void exported_timer_callback(int timer_id) {
-    static bool red_state = false;
-    static bool green_state = false;
-
-    if (timer_id == TIMER_ID_RED) {
-        red_state = !red_state;
-        green_state = false;
-        set_red_led(red_state);
-        printf("R %c\r", red_state ? '+' : '.');
-    } else if (timer_id == TIMER_ID_GREEN) {
-        green_state = !green_state;
-        red_state = false;
-        set_green_led(green_state);
-        printf("G %c\r", green_state ? '+' : '.');
+// Timer callback function - can be any function you want
+static void my_timer_function(void)
+{
+    printf("Timer triggered - blinking LED!\n");
+    static bool led_state = false;
+    static int blink_count = 0;
+    // Active-low: RESET (low) = ON, SET (high) = OFF
+    int ret = led_state ? ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_RESET) // ON
+                        : ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_SET);  // OFF
+    if (ret != 0)
+    {
+        printf("Failed to set LED: %d\n", ret);
     }
-    fflush(stdout);
-}
-
-OCRE_EXPORT("gpio_callback")
-void exported_gpio_callback(int pin, int state) {
-    if (pin == BTN_PIN_ID) {
-        static int prev_state = -1;
-        if (state != prev_state && state == 0) {
-            button_event = true;
-        }
-        prev_state = state;
+    else
+    {
+        printf("LED state set to %s (logical %d, count %d)\n", led_state ? "ON" : "OFF", led_state, ++blink_count);
     }
+    led_state = !led_state;
 }
 
-int main() {
-    printf("Dual-timer blink demo starting...\n");
+// GPIO callback function - can be any function you want
+static void my_button_function(void)
+{
+    static bool led_state = false;
+    static int blink_count = 0;
 
-    ocre_gpio_init();
+    // Active-low: RESET (low) = ON, SET (high) = OFF
+    int ret = led_state ? ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_RESET) // ON
+                        : ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_SET);  // OFF
+    if (ret != 0)
+    {
+        printf("Failed to set LED: %d\n", ret);
+    }
+    else
+    {
+        printf("LED state set to %s (logical %d, count %d)\n", led_state ? "ON" : "OFF", led_state, ++blink_count);
+    }
+    led_state = !led_state;
+}
 
-    ocre_gpio_configure(PORT_LED_RED, PIN_LED_RED, OCRE_GPIO_DIR_OUTPUT);
-    ocre_gpio_configure(PORT_LED_GREEN, PIN_LED_GREEN, OCRE_GPIO_DIR_OUTPUT);
-    
-    ocre_gpio_configure(PORT_BTN, PIN_BTN, OCRE_GPIO_DIR_INPUT);
-    ocre_gpio_register_callback(PORT_BTN, PIN_BTN);
+int main(void)
+{
+    const int timer_id = 1;
+    int interval_ms = 3000;
+    bool is_periodic = true;
 
-    ocre_timer_create(TIMER_ID_RED);
-    ocre_timer_create(TIMER_ID_GREEN);
+    // Initialize GPIO
+    if (ocre_gpio_init() != 0)
+    {
+        printf("GPIO init failed\n");
+        return -1;
+    }
+    // Configure LED
+    if (ocre_gpio_configure(LED0_PORT, LED0, OCRE_GPIO_DIR_OUTPUT) != 0)
+    {
+        printf("LED config failed\n");
+        return -1;
+    }
 
-    // Start with red blinking
-    ocre_timer_start(TIMER_ID_RED, INTERVAL_RED, true);
-    ocre_timer_stop(TIMER_ID_GREEN);
-    set_green_led(false);
+    // Configure Button
+    if (ocre_gpio_configure(BUTTON_PORT, BUTTON_0, OCRE_GPIO_DIR_INPUT) != 0)
+    {
+        printf("Button config failed\n");
+        return -1;
+    }
+    if (ocre_gpio_register_callback(BUTTON_PORT, BUTTON_0) != 0)
+    {
+        printf("Button callback registration failed\n");
+        return -1;
+    }
 
-    while (true) {
-        if (button_event) {
-            button_event = false;
-            
-            static bool red_running = true;
-            red_running = !red_running;
+    // Manual GPIO test
+    printf("Testing LED: Setting ON\n");
+    if (ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_RESET) != 0) // Active-low ON
+        printf("Failed to set LED ON\n");
+    ocre_sleep(1000);
+    printf("Testing LED: Setting OFF\n");
+    if (ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_SET) != 0) // Active-low OFF
+        printf("Failed to set LED OFF\n");
+    ocre_sleep(1000);
 
-            if (red_running) {
-                ocre_timer_stop(TIMER_ID_RED);
-                set_red_led(false);
-                ocre_timer_start(TIMER_ID_GREEN, INTERVAL_GREEN, true);
-                printf("Switched to GREEN (100ms)\n");
-            } else {
-                ocre_timer_stop(TIMER_ID_GREEN);
-                set_green_led(false);
-                ocre_timer_start(TIMER_ID_RED, INTERVAL_RED, true);
-                printf("Switched to RED (500ms)\n");
-            }
-            fflush(stdout);
-        }
+    // Register dispatchers (still needed for WASM exports)
+    if (ocre_register_dispatcher(OCRE_RESOURCE_TYPE_TIMER, "timer_callback") != 0)
+    {
+        printf("Failed to register timer dispatcher\n");
+        return -1;
+    }
+    if (ocre_register_dispatcher(OCRE_RESOURCE_TYPE_GPIO, "gpio_callback") != 0)
+    {
+        printf("Failed to register GPIO dispatcher\n");
+        return -1;
+    }
 
+    // =============================================================================
+    // REGISTER YOUR CUSTOM CALLBACK FUNCTIONS
+    // =============================================================================
+
+    // Register timer callback - you can use any function here!
+    if (ocre_register_timer_callback(timer_id, my_timer_function) != 0)
+    {
+        printf("Failed to register timer callback function\n");
+        return -1;
+    }
+
+    // Register GPIO callback - you can use any function here!
+    if (ocre_register_gpio_callback(BUTTON_0, BUTTON_PORT, my_button_function) != 0)
+    {
+        printf("Failed to register GPIO callback function\n");
+        return -1;
+    }
+
+    // You could also register different functions:
+    // ocre_register_timer_callback(timer_id, my_other_function);
+    // ocre_register_gpio_callback(BUTTON_0, my_other_function);
+
+    // Create and start timer
+    if (ocre_timer_create(timer_id) != 0)
+    {
+        printf("Timer creation failed\n");
+        return -1;
+    }
+    printf("Timer created. ID: %d, Interval: %dms\n", timer_id, interval_ms);
+
+    if (ocre_timer_start(timer_id, interval_ms, is_periodic) != 0)
+    {
+        printf("Timer start failed\n");
+        return -1;
+    }
+
+    printf("Starting event loop...\n");
+    while (1)
+    {
+        ocre_poll_events(); // Now uses the generic system internally
         ocre_sleep(10);
     }
 
+    printf("Blinky exiting.\n");
     return 0;
 }
