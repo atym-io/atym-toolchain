@@ -1,66 +1,47 @@
 /*
  * Copyright (C) 2025 Atym Incorporated. All rights reserved.
+ * Generic Blinky Example - Printf Only
  */
 #include <stdio.h>
 #include <stdint.h>
-#include <stddef.h>
+#include <stdbool.h>
 #include <ocre_api.h>
 
-#define LED0_PORT 7
-#define LED0 7
-
-// Timer callback function - can be any function you want
-static void my_timer_function(void)
+// Timer callback function for generic blinking
+static void generic_blink_function(void)
 {
-    printf("Timer triggered - blinking LED!\n");
-    static bool led_state = false;
     static int blink_count = 0;
-    // Active-low: RESET (low) = ON, SET (high) = OFF
-    int ret = led_state ? ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_RESET) // ON
-                        : ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_SET);  // OFF
-    if (ret != 0)
-    {
-        printf("Failed to set LED: %d\n", ret);
-    }
-    else
-    {
-        printf("LED state set to %s (logical %d, count %d)\n", led_state ? "ON" : "OFF", led_state, ++blink_count);
-    }
-    led_state = !led_state;
+    static bool blink_state = false;
+
+    printf("blink (count: %d, state: %s)\n",
+           ++blink_count, blink_state ? "ON" : "OFF");
+
+    blink_state = !blink_state;
 }
 
 int main(void)
 {
     const int timer_id = 1;
-    int interval_ms = 3000;
+    int interval_ms = 500; // 0.5 second blink
     bool is_periodic = true;
 
-    // Initialize GPIO
-    if (ocre_gpio_init() != 0)
-    {
-        printf("GPIO init failed\n");
-        return -1;
-    }
-    // Configure LED
-    if (ocre_gpio_configure(LED0_PORT, LED0, OCRE_GPIO_DIR_OUTPUT) != 0)
-    {
-        printf("LED config failed\n");
-        return -1;
-    }
+    printf("=== Generic Blinky Example (Printf Only) ===\n");
+    printf("This example demonstrates software blinking without physical hardware.\n");
 
-    // Register dispatchers (still needed for WASM exports)
+    // Register dispatchers
     if (ocre_register_dispatcher(OCRE_RESOURCE_TYPE_TIMER, "timer_callback") != 0)
     {
         printf("Failed to register timer dispatcher\n");
         return -1;
     }
 
-    // Register timer callback - you can use any function here!
-    if (ocre_register_timer_callback(timer_id, my_timer_function) != 0)
+    // Register timer callback
+    if (ocre_register_timer_callback(timer_id, generic_blink_function) != 0)
     {
         printf("Failed to register timer callback function\n");
         return -1;
     }
+
     // Create and start timer
     if (ocre_timer_create(timer_id) != 0)
     {
@@ -74,12 +55,16 @@ int main(void)
         printf("Timer start failed\n");
         return -1;
     }
+
+    printf("Generic blinking started. You should see 'blink' messages every %dms.\n", interval_ms);
+    printf("Press Ctrl+C to stop.\n");
+
     while (1)
     {
-        ocre_poll_events(); // Now uses the generic system internally
+        ocre_poll_events();
         ocre_sleep(10);
     }
 
-    printf("Blinky exiting.\n");
+    printf("Generic Blinky exiting.\n");
     return 0;
 }
