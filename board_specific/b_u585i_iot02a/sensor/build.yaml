@@ -3,9 +3,9 @@
 
 version: '1'
 
-name: blinky-button
+name: sensor
 binaries:
-  - path: build/blinky-button.wasm
+  - path: build/sensor.wasm
 
 config:
   environment:

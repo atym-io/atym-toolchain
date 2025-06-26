@@ -3,9 +3,9 @@
 
 version: '1'
 
-name: blinky-button
+name: sensor-IMU
 binaries:
-  - path: build/blinky-button.wasm
+  - path: build/sensor-IMU.wasm
 
 config:
   environment:
