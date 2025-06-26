@@ -28,13 +28,6 @@ int main(void)
     printf("=== Generic Blinky Example (Printf Only) ===\n");
     printf("This example demonstrates software blinking without physical hardware.\n");
 
-    // Register dispatchers
-    if (ocre_register_dispatcher(OCRE_RESOURCE_TYPE_TIMER, "timer_callback") != 0)
-    {
-        printf("Failed to register timer dispatcher\n");
-        return -1;
-    }
-
     // Register timer callback
     if (ocre_register_timer_callback(timer_id, generic_blink_function) != 0)
     {

@@ -117,19 +117,6 @@ int main(void)
         return -1;
     }
 
-    // Register dispatchers
-    if (ocre_register_dispatcher(OCRE_RESOURCE_TYPE_TIMER, "timer_callback") != 0)
-    {
-        printf("Failed to register timer dispatcher\n");
-        return -1;
-    }
-
-    if (ocre_register_dispatcher(OCRE_RESOURCE_TYPE_GPIO, "gpio_callback") != 0)
-    {
-        printf("Failed to register GPIO dispatcher\n");
-        return -1;
-    }
-
     // Register callbacks
     if (ocre_register_timer_callback(timer_id, timer_blink_function) != 0)
     {
