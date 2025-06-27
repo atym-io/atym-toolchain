@@ -80,7 +80,7 @@ int main(void)
 
     while (1)
     {
-        ocre_poll_events();
+        ocre_process_events();
         ocre_sleep(10);
     }
 
