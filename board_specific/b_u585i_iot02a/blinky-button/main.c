@@ -17,33 +17,10 @@ static bool led_state = false;
 static int blink_count = 0;
 static bool button_pressed = false;
 
-// Timer callback function for LED blinking
-static void timer_blink_function(void)
-{
-    if (!blinky_active)
-        return;
-
-    printf("Timer triggered - blinking LED!\n");
-
-    // Active-low: RESET (low) = ON, SET (high) = OFF
-    int ret = led_state ? ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_RESET) // ON
-                        : ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_SET);  // OFF
-
-    if (ret != 0)
-    {
-        printf("Failed to set LED: %d\n", ret);
-    }
-    else
-    {
-        printf("LED state set to %s (logical %d, count %d)\n",
-               led_state ? "ON" : "OFF", led_state, ++blink_count);
-    }
-    led_state = !led_state;
-}
-
 // GPIO callback function for button press
 static void button_callback_function(void)
 {
+    printf("button_callback_function");
     // Read button state
     ocre_gpio_pin_state_t button_state = ocre_gpio_pin_get(BUTTON_PORT, BUTTON_PIN);
 
@@ -67,16 +44,12 @@ static void button_callback_function(void)
                 printf("Init blink %d - LED OFF\n", i + 1);
                 ocre_sleep(200);
             }
-
-            // Start regular blinking
-            ocre_timer_start(1, 1000, true);
+            blinky_active = false;
         }
         else
         {
             printf("Button pressed - stopping blinky!\n");
             blinky_active = false;
-            ocre_timer_stop(1);
-
             // Turn off LED
             ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_SET); // OFF
             led_state = false;
@@ -118,29 +91,15 @@ int main(void)
     }
 
     // Register callbacks
-    if (ocre_register_timer_callback(timer_id, timer_blink_function) != 0)
+    if (ocre_gpio_register_callback(BUTTON_PORT, BUTTON_PIN) != 0)
     {
-        printf("Failed to register timer callback function\n");
+        printf("Failed to register button callback\n");
         return -1;
     }
 
     if (ocre_register_gpio_callback(BUTTON_PIN, BUTTON_PORT, button_callback_function) != 0)
     {
         printf("Failed to register GPIO callback function\n");
-        return -1;
-    }
-
-    // Create timer (but don't start it yet)
-    if (ocre_timer_create(timer_id) != 0)
-    {
-        printf("Timer creation failed\n");
-        return -1;
-    }
-
-    // Register GPIO callback for button
-    if (ocre_gpio_register_callback(BUTTON_PORT, BUTTON_PIN) != 0)
-    {
-        printf("Failed to register button callback\n");
         return -1;
     }
 

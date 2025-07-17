@@ -12,15 +12,24 @@ void message_handler(const char *topic, const char *content_type, const void *pa
 // WASM entry point
 int main(void)
 {
-  if (ocre_register_message_callback(TOPIC, message_handler) != OCRE_SUCCESS)
+  // ocre_msg_system_init();
+  int ret = ocre_register_message_callback(TOPIC, message_handler);
+  if (ret != OCRE_SUCCESS)
   {
-    printf("Failed to register message callback for %s\n", TOPIC);
+    printf("Error: Failed to register message callback for %s\n", TOPIC);
   }
-  printf("Subscriber initialized: listening on %s\n", TOPIC); // YES
+
+  ret = ocre_subscribe_message(TOPIC);
+  if (ret != OCRE_SUCCESS)
+  {
+    printf("Error: Failed to subscribe to topic %s\n", TOPIC);
+    ocre_unregister_message_callback(TOPIC);
+  }
+
+  printf("Subscriber initialized: listening on %s\n", TOPIC);
   while (1)
   {
     ocre_process_events();
-    ocre_sleep(300);
   }
   return 0;
 }

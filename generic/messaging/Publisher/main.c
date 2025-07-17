@@ -14,7 +14,7 @@ void timer_handler(void);
 // WASM entry point
 int main(void)
 {
-  ocre_msg_system_init();
+  // ocre_msg_system_init();
   if (ocre_timer_create(TIMER_ID) != OCRE_SUCCESS)
   {
     printf("Failed to create timer %d\n", TIMER_ID);
@@ -23,7 +23,7 @@ int main(void)
   {
     printf("Failed to register timer callback\n");
   }
-  if (ocre_timer_start(TIMER_ID, 5000, 1) != OCRE_SUCCESS)
+  if (ocre_timer_start(TIMER_ID, 1000, 1) != OCRE_SUCCESS)
   {
     printf("Failed to start timer %d\n", TIMER_ID);
   }
@@ -31,7 +31,6 @@ int main(void)
   while (1)
   {
     ocre_process_events();
-    ocre_sleep(300);
   }
   return 0;
 }
@@ -50,5 +49,3 @@ void timer_handler(void)
     printf("Failed to publish message %d\n", message_count);
   }
 }
-
-// Works properly from here
