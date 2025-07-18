@@ -14,7 +14,6 @@ void timer_handler(void);
 // WASM entry point
 int main(void)
 {
-  // ocre_msg_system_init();
   if (ocre_timer_create(TIMER_ID) != OCRE_SUCCESS)
   {
     printf("Failed to create timer %d\n", TIMER_ID);

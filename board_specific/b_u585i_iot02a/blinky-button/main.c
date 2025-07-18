@@ -14,7 +14,6 @@
 
 static bool blinky_active = false;
 static bool led_state = false;
-static int blink_count = 0;
 static bool button_pressed = false;
 
 // GPIO callback function for button press
@@ -64,8 +63,6 @@ static void button_callback_function(void)
 
 int main(void)
 {
-    const int timer_id = 1;
-
     printf("=== Button Controlled LED Blinky Example ===\n");
     printf("Press button to start blinky!\n");
 

@@ -73,17 +73,10 @@ int main(void)
             }
 
             // Read sensor data
-            int value = ocre_sensors_read(sensor_id, channel_type);
-            if (value < 0)
-            {
-                printf("  Channel %d (type %d): Read failed (error: %d)\n",
-                       channel_idx, channel_type, value);
-            }
-            else
-            {
-                printf("  Channel %d (type %d): Value = %d\n",
-                       channel_idx, channel_type, value);
-            }
+            double value = ocre_sensors_read(sensor_id, channel_type);
+
+            printf("  Channel %d (type %d): Value = %.2f\n",
+                   channel_idx, channel_type, value);
         }
     }
 
