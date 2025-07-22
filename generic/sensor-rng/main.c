@@ -32,7 +32,8 @@ int main(void)
 
     // Try to open RNG sensor by name
     ocre_sensor_handle_t rng_handle_by_name;
-    if (ocre_sensors_open_by_name("RNG Sensor") != 0)
+    rng_handle_by_name = ocre_sensors_open_by_name("RNG Sensor");
+    if (rng_handle_by_name != 0)
     {
         printf("Could not open RNG sensor by name 'RNG Sensor'\n");
     }

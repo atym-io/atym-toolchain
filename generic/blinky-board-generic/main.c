@@ -45,7 +45,9 @@ int main(void)
         return -1;
     }
 
-    // Configure LED
+    // Configure LED 
+    // "led0" - Device tree configuration must be available 
+    // Or the application will not work 
     if (ocre_gpio_configure_by_name("led0", OCRE_GPIO_DIR_OUTPUT) != 0)
     {
         printf("LED config failed\n");

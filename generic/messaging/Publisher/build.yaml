@@ -4,6 +4,7 @@
 version: '1'
 
 name: publisher
+
 binaries:
   - path: build/publisher.wasm
 
