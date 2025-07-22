@@ -7,9 +7,6 @@
 #include <stdbool.h>
 #include <ocre_api.h>
 
-#define LED0_PORT 7
-#define LED0 7
-
 // Timer callback function
 static void my_timer_function(void)
 {
@@ -18,8 +15,8 @@ static void my_timer_function(void)
     static int blink_count = 0;
 
     // Active-low: RESET (low) = ON, SET (high) = OFF
-    int ret = led_state ? ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_RESET) // ON
-                        : ocre_gpio_pin_set(LED0_PORT, LED0, OCRE_GPIO_PIN_SET);  // OFF
+    int ret = led_state ? ocre_gpio_set_by_name("led0", OCRE_GPIO_PIN_RESET)
+                        : ocre_gpio_set_by_name("led0", OCRE_GPIO_PIN_SET); 
 
     if (ret != 0)
     {
@@ -48,8 +45,10 @@ int main(void)
         return -1;
     }
 
-    // Configure LED
-    if (ocre_gpio_configure(LED0_PORT, LED0, OCRE_GPIO_DIR_OUTPUT) != 0)
+    // Configure LED 
+    // "led0" - Device tree configuration must be available 
+    // Or the application will not work 
+    if (ocre_gpio_configure_by_name("led0", OCRE_GPIO_DIR_OUTPUT) != 0)
     {
         printf("LED config failed\n");
         return -1;

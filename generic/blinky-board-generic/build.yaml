@@ -3,9 +3,9 @@
 
 version: '1'
 
-name: blinky-xmas
+name: blinky-board-generic
 binaries:
-  - path: build/blinky-xmas.wasm
+  - path: build/blinky-board-generic.wasm
 
 config:
   environment:

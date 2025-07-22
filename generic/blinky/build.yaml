@@ -12,3 +12,4 @@ config:
     - INTERVAL=500
   permissions:
     - ocre_timers
+    - ocre_gpio

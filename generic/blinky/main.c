@@ -1,52 +1,63 @@
 /*
  * Copyright (C) 2025 Atym Incorporated. All rights reserved.
+ * Generic Blinky Example - Printf Only
  */
-
 #include <stdio.h>
+#include <stdint.h>
 #include <stdbool.h>
-#include "../../atym-sdk/ocre_api.h"
+#include <ocre_api.h>
 
-#define TIMER_ID        1
-#define TIMER_INTERVAL  500
+// Timer callback function for generic blinking
+static void generic_blink_function(void)
+{
+    static int blink_count = 0;
+    static bool blink_state = false;
 
-// Manages the LED state, and called by the timer callback function
-void blink_led(void) {
-    static bool led_state = false;
-    led_state = !led_state;
-    printf("%s\r", led_state ? "+" : ".");
-    fflush(stdout);
+    printf("blink (count: %d, state: %s)\n",
+           ++blink_count, blink_state ? "ON" : "OFF");
+
+    blink_state = !blink_state;
 }
 
-// Timer callback function exposed to Zephyr
-__attribute__((export_name("timer_callback"))) 
-void exported_timer_callback(int timer_id) {
-    blink_led();
-}
+int main(void)
+{
+    const int timer_id = 1;
+    int interval_ms = 500; // 0.5 second blink
+    bool is_periodic = true;
 
-// Application entry point
-int main(void) {
-    int ret;
+    printf("=== Generic Blinky Example (Printf Only) ===\n");
+    printf("This example demonstrates software blinking without physical hardware.\n");
 
-    printf("Blinky app initializing...\n");
-   
-    // Create the periodic timer using the ocre timer API
-    ret = ocre_timer_create(TIMER_ID);
-    if (ret != 0) {
-        printf("Failed to create timer: %d\n", ret);
-        return ret;
+    // Register timer callback
+    if (ocre_register_timer_callback(timer_id, generic_blink_function) != 0)
+    {
+        printf("Failed to register timer callback function\n");
+        return -1;
     }
 
-    // Start the periodic timer using the ocre timer API
-    ret = ocre_timer_start(TIMER_ID, TIMER_INTERVAL, true);
-    if (ret != 0) {
-        printf("Failed to start timer: %d\n", ret);
-        return ret;
+    // Create and start timer
+    if (ocre_timer_create(timer_id) != 0)
+    {
+        printf("Timer creation failed\n");
+        return -1;
+    }
+    printf("Timer created. ID: %d, Interval: %dms\n", timer_id, interval_ms);
+
+    if (ocre_timer_start(timer_id, interval_ms, is_periodic) != 0)
+    {
+        printf("Timer start failed\n");
+        return -1;
     }
 
-    // Keep the application running and prevent busy waiting
-    while (1) {
-        ocre_sleep(100);
+    printf("Generic blinking started. You should see 'blink' messages every %dms.\n", interval_ms);
+    printf("Press Ctrl+C to stop.\n");
+
+    while (1)
+    {
+        ocre_process_events();
+        ocre_sleep(10);
     }
 
+    printf("Generic Blinky exiting.\n");
     return 0;
 }

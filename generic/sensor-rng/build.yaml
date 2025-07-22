@@ -3,9 +3,9 @@
 
 version: '1'
 
-name: blinky-xmas
+name: sensor-rng
 binaries:
-  - path: build/blinky-xmas.wasm
+  - path: build/sensor-rng.wasm
 
 config:
   environment:
