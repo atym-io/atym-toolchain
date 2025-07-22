@@ -3,7 +3,7 @@
 
 version: '1'
 
-name: blinky
+name: blinky-xmas
 binaries:
   - path: build/blinky-xmas.wasm
 

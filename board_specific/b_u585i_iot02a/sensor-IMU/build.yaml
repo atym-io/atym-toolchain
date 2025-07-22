@@ -3,9 +3,9 @@
 
 version: '1'
 
-name: sensor-IMU
+name: sensor-imu
 binaries:
-  - path: build/sensor-IMU.wasm
+  - path: build/sensor-imu.wasm
 
 config:
   environment:
