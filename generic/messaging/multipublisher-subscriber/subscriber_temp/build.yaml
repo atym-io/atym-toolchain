@@ -3,10 +3,9 @@
 
 version: '1'
 
-name: publisher_1
-
+name: subscriber_temp
 binaries:
-  - path: build/publisher_1.wasm
+  - path: build/subscriber_temp.wasm
 
 config:
   environment:

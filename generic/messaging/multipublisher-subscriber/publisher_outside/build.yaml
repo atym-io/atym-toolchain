@@ -3,10 +3,10 @@
 
 version: '1'
 
-name: publisher_2
+name: publisher_outside
 
 binaries:
-  - path: build/publisher_2.wasm
+  - path: build/publisher_outside.wasm
 
 config:
   environment:

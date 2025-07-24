@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20.0)
 set(CMAKE_TOOLCHAIN_FILE /opt/wasi-sdk/share/cmake/wasi-sdk.cmake)
-set(APPNAME subscriber)
+set(APPNAME publisher_outside)
 project(${APPNAME} LANGUAGES C)
 
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--strip-all -Wl,--allow-undefined")

@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#define TIMER_ID 1
-#define TOPIC "test/first"
+#define TIMER_ID 2
+#define TOPIC "temperature/outside"
 #define CONTENT_TYPE "text/plain"
 
 void timer_handler(void);
@@ -22,7 +22,7 @@ int main(void)
   {
     printf("Failed to register timer callback\n");
   }
-  if (ocre_timer_start(TIMER_ID, 2000, 1) != OCRE_SUCCESS)
+  if (ocre_timer_start(TIMER_ID, 4000, 1) != OCRE_SUCCESS)
   {
     printf("Failed to start timer %d\n", TIMER_ID);
   }
@@ -38,7 +38,7 @@ void timer_handler(void)
 {
   static int message_count = 0;
   char payload[32];
-  snprintf(payload, sizeof(payload), "Message from first %d", message_count++);
+  snprintf(payload, sizeof(payload), "Temperature outside %d", message_count++);
   if (ocre_publish_message(TOPIC, CONTENT_TYPE, payload, strlen(payload) + 1) == OCRE_SUCCESS)
   {
     printf("Published: %s to topic %s\n", payload, TOPIC);
