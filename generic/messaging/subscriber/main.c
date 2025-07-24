@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define TOPIC "test/topic"
+#define TOPIC "test/"
 
 void message_handler(const char *topic, const char *content_type, const void *payload, uint32_t payload_len);
 
