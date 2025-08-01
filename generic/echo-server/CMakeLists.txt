@@ -7,7 +7,7 @@ set(APPNAME echo-server)
 project(${APPNAME})
 
 # Include the WAMR socket library CMake file (adjust path as needed)
-include(../../external/wasm-micro-runtime/core/iwasm/libraries/lib-socket/lib_socket_wasi.cmake)
+include($ENV{WAMR_PATH}/core/iwasm/libraries/lib-socket/lib_socket_wasi.cmake)
 
 add_compile_options(
     -O0 -Wno-unknown-attributes
@@ -18,6 +18,6 @@ add_link_options(
 )
 add_executable(${APPNAME}.wasm src/main.c)
 target_include_directories(${APPNAME}.wasm PRIVATE
-    ../../external/wasm-micro-runtime/core/iwasm/libraries/lib-socket
+    $ENV{WAMR_PATH}/core/iwasm/libraries/lib-socket
 )
 target_link_libraries(${APPNAME}.wasm socket_wasi_ext)

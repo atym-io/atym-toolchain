@@ -13,12 +13,7 @@ add_compile_options(
 )
 
 # Add the atym-sdk as a subdirectory and build it
-set(ATYM_SDK_PATH "../../../atym-sdk")
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${ATYM_SDK_PATH}/CMakeLists.txt")
-    message(FATAL_ERROR "atym-sdk not found at ${ATYM_SDK_PATH}. Please ensure the atym-sdk directory exists and contains CMakeLists.txt")
-endif()
-
-add_subdirectory(${ATYM_SDK_PATH} atym-sdk-build)
+add_subdirectory($ENV{ATYM_SDK_PATH} atym-sdk-build)
 
 add_executable(${APPNAME}.wasm main.c)
 target_include_directories(${APPNAME}.wasm PRIVATE ocre_api)

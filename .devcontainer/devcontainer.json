@@ -22,6 +22,12 @@
 		"ghcr.io/devcontainers/features/git:1": {},
 		"ghcr.io/devcontainers/features/github-cli:1": {}
 	},
+
+	"containerEnv": { 
+		"ATYM_SDK_PATH": "${containerWorkspaceFolder}/atym-sdk",
+		"WAMR_PATH": "${containerWorkspaceFolder}/external/wasm-micro-runtime" 
+	},
+
 	"customizations": {
 		"vscode": {
 			"extensions": [
