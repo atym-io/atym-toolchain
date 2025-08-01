@@ -4,6 +4,8 @@
 #define HTTP_PORT "8000"
 #define LISTEN_ADDRESS "http://0.0.0.0:" HTTP_PORT
 
+unsigned int counter = 0;
+
 static void fn(struct mg_connection *c, int ev, void *ev_data) {
   if (ev == MG_EV_HTTP_MSG) {
     struct mg_http_message *hm = (struct mg_http_message *) ev_data;
@@ -16,11 +18,12 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
       mg_http_printf_chunk(c,
         "<!DOCTYPE html>"
         "<html>"
-        "<head><title>Webserver Demo</title></head>"
+        "<head><title>WASM Webserver Demo</title></head>"
         "<body>"
         "<h1>Hello, World!</h1>"
+        "Refresh counter: %d"
         "</body>"
-        "</html>");
+        "</html>", counter++);
       mg_http_printf_chunk(c, "");
       
     } else {
