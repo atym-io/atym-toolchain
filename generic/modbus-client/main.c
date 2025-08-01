@@ -1,8 +1,10 @@
 #include "mongoose.h"
 #include "ocre_api.h"
 
-#define MODBUS_TCP_PORT 502
-#define MODBUS_HEADER_SIZE 7
+#define MODBUS_TCP_PORT     "1502"
+#define MODBUS_TCP_ADDRESS  "tcp://0.0.0.0:" MODBUS_TCP_PORT
+
+#define MODBUS_HEADER_SIZE   7
 #define MODBUS_MAX_REGISTERS 64
 
 static uint16_t holding_registers[MODBUS_MAX_REGISTERS] = {0};
@@ -103,9 +105,9 @@ int main(void) {
 
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
-    mg_listen(&mgr, "tcp://0.0.0.0:502", modbus_slave_handler, NULL);
+    mg_listen(&mgr, MODBUS_TCP_ADDRESS, modbus_slave_handler, NULL);
 
-    printf("Modbus Listening on 502\n");
+    printf("Modbus Listening on %s\n", MODBUS_TCP_ADDRESS);
     
     for (;;) {
         mg_mgr_poll(&mgr, 1000);
