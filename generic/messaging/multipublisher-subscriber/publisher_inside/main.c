@@ -6,7 +6,7 @@
 #include <string.h>
 
 #define TIMER_ID 1
-#define TOPIC "test/topic"
+#define TOPIC "temperature/inside"
 #define CONTENT_TYPE "text/plain"
 
 void timer_handler(void);
@@ -38,7 +38,7 @@ void timer_handler(void)
 {
   static int message_count = 0;
   char payload[32];
-  snprintf(payload, sizeof(payload), "Test message %d", message_count++);
+  snprintf(payload, sizeof(payload), "Temperature inside %d", message_count++);
   if (ocre_publish_message(TOPIC, CONTENT_TYPE, payload, strlen(payload) + 1) == OCRE_SUCCESS)
   {
     printf("Published: %s to topic %s\n", payload, TOPIC);
