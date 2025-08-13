@@ -12,12 +12,6 @@
 #define FILE_PATH   CWD "folder/test.txt"
 #define BUF_SIZE 512
 
-// Generates a pseudo-random temp filename inside /folder
-void generate_temp_filename(char *buffer, size_t size) {
-    int suffix = rand() % 10000;
-    snprintf(buffer, size, "%s/tempfile-%d.txt", FOLDER_PATH, suffix);
-}
-
 int main(int argc, char **argv)
 {
     setvbuf(stdout, NULL, _IONBF, 0);  // Disable stdout buffering
@@ -70,19 +64,65 @@ int main(int argc, char **argv)
     }
     printf("fopen success: %s\n", FILE_PATH);
 
-    // Write to test file
-    const char *data = "Hello, World!";
-    size_t nitems = fwrite(data, sizeof(char), strlen(data) + 1, file);
-    printf("fwrite returned %zu bytes\n", nitems);
+    // Write using various methods
+    fwrite("Hello, World!\n", sizeof(char), 14, file);
+    fputc('A', file);
+    fputs("Line of text\n", file);
+    fprintf(file, "Formatted number: %d\n", 42);
+    fflush(file);
 
-    // Read file back
-    rc = fseek(file, 0, SEEK_SET);
-    printf("fseek returned %d\n", rc);
+    // Rewind and read back
+    rewind(file);
 
-    char buffer[32];
-    nitems = fread(buffer, sizeof(char), sizeof(buffer), file);
-    printf("fread: %zu bytes\n", nitems);
-    printf("buffer read = %s\n", buffer);
+    char buffer[BUF_SIZE];
+    fread(buffer, sizeof(char), 14, file);
+    buffer[14] = '\0';
+    printf("fread: %s\n", buffer);
+
+    rewind(file);
+    int ch = fgetc(file);
+    printf("fgetc: %c\n", ch);
+
+    rewind(file);
+    fgets(buffer, sizeof(buffer), file);
+    printf("fgets: %s\n", buffer);
+
+    rewind(file);
+    int num = 0;
+    fscanf(file, "%*s %*s %d", &num);
+    printf("fscanf: %d\n", num);
+
+    // File positioning
+    fseek(file, 0, SEEK_END);
+    long pos = ftell(file);
+    printf("ftell: %ld\n", pos);
+
+    rewind(file);
+    fpos_t fpos;
+    if (fgetpos(file, &fpos) == 0) {
+        printf("fgetpos succeeded\n");
+    }
+    if (fsetpos(file, &fpos) == 0) {
+        printf("fsetpos succeeded\n");
+    }
+
+    // File status and control
+    printf("feof: %d\n", feof(file));
+    printf("ferror: %d\n", ferror(file));
+    clearerr(file);
+    fflush(file);
+
+    // Try fileno (may not be supported)
+    int fd = fileno(file);
+    printf("fileno: %d\n", fd);
+
+    // Try freopen (may not be supported)
+    file = freopen(FILE_PATH, "r", file);
+    if (!file) {
+        printf("freopen failed: %s (%d)\n", strerror(errno), errno);
+    } else {
+        printf("freopen succeeded\n");
+    }
 
     rc = fclose(file);
     printf("fclose returned %d\n", rc);
@@ -105,22 +145,6 @@ int main(int argc, char **argv)
     if (rc != 0) {
         printf("closedir failed: %s (%d)\n", strerror(errno), errno);
         return -1;
-    }
-
-    // Fallback temp file demo
-    char tmpname[64];
-    generate_temp_filename(tmpname, sizeof(tmpname));
-
-    FILE *tmp = fopen(tmpname, "w+");
-    if (!tmp) {
-        printf("Fallback temp file failed: %s (%d)\n", strerror(errno), errno);
-    } else {
-        fputs("Temporary data\n", tmp);
-        rewind(tmp);
-        fgets(buffer, sizeof(buffer), tmp);
-        printf("Fallback temp file read: %s", buffer);
-        fclose(tmp);
-        unlink(tmpname);  // Clean up
     }
 
     return 0;
