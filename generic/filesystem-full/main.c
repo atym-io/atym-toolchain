@@ -4,7 +4,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <time.h>
 #include <dirent.h>
 
 #define CWD "/"
@@ -15,7 +14,6 @@
 int main(int argc, char **argv)
 {
     setvbuf(stdout, NULL, _IONBF, 0);  // Disable stdout buffering
-    srand((unsigned)time(NULL));       // Seed random generator
 
     int rc;
     struct stat st;
