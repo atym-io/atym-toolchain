@@ -9,6 +9,6 @@ fi
 
 # Run the simple reader container with the same shared filesystem mounted
 echo "Running simple shared filesystem reader container..."
-iwasm --map-dir=/shared::../shared-filesystem-writer/shared build/shared-filesystem-reader-simple.wasm
+iwasm --map-dir=/shared::../shared-filesystem-writer/shared build/shared-filesystem-reader.wasm
 
 echo "Simple reader container completed. Check ../shared-filesystem-writer/shared/shared_data.txt for final output." 
