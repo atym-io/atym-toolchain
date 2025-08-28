@@ -1,1 +1,0 @@
-iwasm --addr-pool=0.0.0.0/0 build/modbus-client.wasm
