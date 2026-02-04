@@ -31,6 +31,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-requests \
     ninja-build \
+    zlib1g-dev \
     && if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
         # 32-bit x86 compatibility packages (not available on ARM64)
         apt-get install -y --no-install-recommends \
