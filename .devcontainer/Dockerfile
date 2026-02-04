@@ -28,17 +28,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo \
     jq \
     ccache \
-    python3-pip \
-    python3-requests \
     ninja-build \
     zlib1g-dev \
-    && if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
-        # 32-bit x86 compatibility packages (not available on ARM64)
-        apt-get install -y --no-install-recommends \
-            g++-multilib \
-            libgcc-13-dev \
-            lib32gcc-13-dev; \
-    fi \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
     && apt-get update && apt-get install -y --no-install-recommends nodejs \
@@ -51,9 +42,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get install -y --no-install-recommends atym \
     && apt-get clean -y \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3 50
-
-# For LLVM build - allow pip to install packages in an externally managed environment 
-ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
 # Install wasi-sdk
 RUN mkdir /opt/wasi-sdk && \
@@ -74,12 +62,6 @@ RUN cd /tmp \
     && make \
     && mkdir -p /opt/wamr/bin \
     && cp iwasm /opt/wamr/bin/ \
-    && cd /tmp/wasm-micro-runtime-WAMR-$WAMR_VERSION/wamr-compiler \
-    && ./build_llvm.sh \
-    && mkdir build && cd build \
-    && cmake .. \
-    && make \
-    && cp wamrc /opt/wamr/bin/ \
     && rm -rf /tmp/wasm-micro-runtime-WAMR-$WAMR_VERSION
 
 ENV PATH="/opt/wamr/bin:/opt/wasm-tools/bin:${PATH}"
