@@ -26,17 +26,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     net-tools \
     sudo \
     jq \
-    g++-multilib \
-    libgcc-13-dev \
-    lib32gcc-13-dev \
     ccache \
     python3-pip \
     python3-requests \
     ninja-build \
-    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
-    apt-get update && apt-get install -y --no-install-recommends \
-    nodejs \
+    && if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
+        # 32-bit x86 compatibility packages (not available on ARM64)
+        apt-get install -y --no-install-recommends \
+            g++-multilib \
+            libgcc-13-dev \
+            lib32gcc-13-dev; \
+    fi \
+    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+    && apt-get update && apt-get install -y --no-install-recommends nodejs \
     && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list \
     && apt-get update \
@@ -44,7 +47,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && echo "deb [trusted=yes] http://apt.dist.atym.io stable main" | tee /etc/apt/sources.list.d/myrepo.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends atym \
-    && apt-get clean -y\
+    && apt-get clean -y \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3 50
 
 # For LLVM build - allow pip to install packages in an externally managed environment 
