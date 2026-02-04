@@ -1,0 +1,26 @@
+name: Main
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  container:
+    name: Container
+    uses: ./.github/workflows/container.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      packages: write
