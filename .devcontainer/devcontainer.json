@@ -1,11 +1,25 @@
 {
+  "name": "Atym Toolchain",
   "build": {
     "dockerfile": "Dockerfile",
+    "target": "atym-dev",
     "args": {
       "USERNAME": "${localEnv:USER}",
       "USER_UID": "${localEnv:REMOTE_UID:1000}",
       "USER_GID": "${localEnv:REMOTE_GID:1000}"
-    }
+    },
+    "cacheFrom": ["ghcr.io/atym-io/atym-toolchain:base"]
   },
-  "remoteUser": "${localEnv:USER}"
+  "remoteUser": "${localEnv:USER}",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.cpptools-themes",
+        "ms-vscode.cpptools",
+        "twxs.cmake",
+        "ms-vscode.cmake-tools"
+      ]
+    }
+  }
 }

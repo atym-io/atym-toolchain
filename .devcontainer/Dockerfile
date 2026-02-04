@@ -1,10 +1,6 @@
 # Copyright (C) 2026 Atym, Inc.  All rights reserved.
 
-FROM ubuntu:24.04 AS atym-dev
-
-ARG USERNAME=atym-dev
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+FROM ubuntu:24.04 AS atym-base
 
 ARG NODE_MAJOR=20
 ARG WASI_SDK_VERSION=29
@@ -41,6 +37,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
     apt-get update && apt-get install -y --no-install-recommends \
     nodejs \
+    && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends gh \
     && echo "deb [trusted=yes] http://apt.dist.atym.io stable main" | tee /etc/apt/sources.list.d/myrepo.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends atym \
@@ -73,6 +73,12 @@ RUN cd /tmp \
     && rm -rf /tmp/wasm-micro-runtime-WAMR-$WAMR_VERSION
 
 ENV PATH="/opt/wamr/bin:${PATH}"
+
+FROM atym-base AS atym-dev
+
+ARG USERNAME=atym-dev
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
 
 # Accomodate the user for devcontainer
 RUN (userdel -r $USERNAME ; userdel -r `id -nu $USER_UID` ; groupdel `id -ng $USER_GID`) || true \
