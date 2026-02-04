@@ -4,6 +4,7 @@ FROM ubuntu:24.04 AS atym-base
 
 ARG NODE_MAJOR=20
 ARG WASI_SDK_VERSION=29
+ARG WASM_TOOLS_VERSION=1.244.0
 ARG WAMR_VERSION=2.4.4
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -58,6 +59,11 @@ RUN mkdir /opt/wasi-sdk && \
     curl -sSL https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-$WASI_SDK_VERSION/wasi-sdk-$WASI_SDK_VERSION.0-$(uname -m | sed s/aarch64/arm64/)-linux.tar.gz | \
         tar zxvf - --strip-components=1 -C /opt/wasi-sdk
 
+# Install wasm-tools
+RUN mkdir -p /opt/wasm-tools/bin && \
+    curl -sSL https://github.com/bytecodealliance/wasm-tools/releases/download/v$WASM_TOOLS_VERSION/wasm-tools-$WASM_TOOLS_VERSION-$(uname -m)-linux.tar.gz | \
+        tar zxvf - -C /opt/wasm-tools/bin --strip-components=1
+
 # Install WAMR (iwasm and wamrc)
 RUN cd /tmp \
     && curl -sSL https://github.com/bytecodealliance/wasm-micro-runtime/archive/refs/tags/WAMR-$WAMR_VERSION.tar.gz | tar zxvf - \
@@ -75,7 +81,7 @@ RUN cd /tmp \
     && cp wamrc /opt/wamr/bin/ \
     && rm -rf /tmp/wasm-micro-runtime-WAMR-$WAMR_VERSION
 
-ENV PATH="/opt/wamr/bin:${PATH}"
+ENV PATH="/opt/wamr/bin:/opt/wasm-tools/bin:${PATH}"
 
 FROM atym-base AS atym-dev
 

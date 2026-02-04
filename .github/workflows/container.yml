@@ -50,6 +50,7 @@ jobs:
     if: needs.necessary.outputs.build == 'true'
     needs:
       - necessary
+    timeout-minutes: 360
     strategy:
       matrix:
         include:
