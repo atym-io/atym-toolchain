@@ -8,6 +8,7 @@
       "USER_UID": "${localEnv:REMOTE_UID:1000}",
       "USER_GID": "${localEnv:REMOTE_GID:1000}"
     },
+    "cacheFrom": ["ghcr.io/atym-io/atym-toolchain/atym-toolchain:latest"]
   },
   "remoteUser": "${localEnv:USER}",
   "customizations": {
