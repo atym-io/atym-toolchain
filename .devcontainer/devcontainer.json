@@ -9,7 +9,7 @@
       "USER_GID": "${localEnv:REMOTE_GID:1000}"
     },
   },
-  "remoteUser": "${localEnv:USER}",
+  "remoteUser": "${containerUser}",
   "customizations": {
     "vscode": {
       "extensions": [
