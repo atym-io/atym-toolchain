@@ -7,9 +7,9 @@
       "USERNAME": "${localEnv:USER:atym-dev}",
       "USER_UID": "${localEnv:REMOTE_UID:1000}",
       "USER_GID": "${localEnv:REMOTE_GID:1000}"
-    },
+    }
   },
-  "remoteUser": "${containerUser}",
+  "remoteUser": "${localEnv:USER:atym-dev}",
   "customizations": {
     "vscode": {
       "extensions": [

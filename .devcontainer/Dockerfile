@@ -74,11 +74,18 @@ ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
 # Accomodate the user for devcontainer
-RUN (userdel -r $USERNAME ; userdel -r `id -nu $USER_UID` ; groupdel `id -ng $USER_GID`) || true \
-    && groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -s /bin/bash \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
+RUN set -eux; \
+    # remove user if it exists
+    if getent passwd "$USERNAME" >/dev/null; then userdel -r "$USERNAME" || true; fi; \
+    # remove any user currently owning USER_UID (if any)
+    if getent passwd "$USER_UID" >/dev/null; then userdel -r "$(getent passwd "$USER_UID" | cut -d: -f1)" || true; fi; \
+    # remove any group currently owning USER_GID (if any)
+    if getent group "$USER_GID" >/dev/null; then groupdel "$(getent group "$USER_GID" | cut -d: -f1)" || true; fi; \
+    \
+    groupadd --gid "$USER_GID" "$USERNAME"; \
+    useradd --uid "$USER_UID" --gid "$USER_GID" -m "$USERNAME" -s /bin/bash; \
+    echo "$USERNAME ALL=(root) NOPASSWD:ALL" > "/etc/sudoers.d/$USERNAME"; \
+    chmod 0440 "/etc/sudoers.d/$USERNAME"    
 
 USER $USERNAME
 
